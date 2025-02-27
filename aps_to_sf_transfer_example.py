@@ -32,10 +32,10 @@ def createDDLFromAPSToSFTable (env,db_type, schemaID, aps_tableName, table_on_sf
     if ( env == 'prod'):
         sf_db = sf_prod
 
-    if ( db_type == 'lad'):
+    if ( db_type == 'sandbox'):
         aps_db = config.aps_batch
     if ( db_type == 'cnfg'):
-        aps_db = config.aps2_cnfg_batch
+        aps_db = config.aps_cnfg_batch
     aps_conn, aps_cur = config.getApsCon(aps_db)
 
     createTempTable_qry = f"""SELECT 
@@ -112,10 +112,10 @@ def direct_table_transfer(env, data):
     if ( env == 'prod'):
         sf_db = sf_prod
 
-    if ( db_type == 'lad'):
+    if ( db_type == 'sandbox'):
         aps_db = config.aps_batch
     if ( db_type == 'cnfg'):
-        aps_db = config.aps2_cnfg_batch
+        aps_db = config.aps_cnfg_batch
     aps_conn, aps_cur = config.getApsCon(aps_db)
     
     sf_conn, sf_engine, sf_cur , = config.getSfCon_alt(sf_db)
@@ -282,7 +282,7 @@ def parquet_file_creation_and_upload( data):
   
 def main(env, db_type , partition_column , schemaID , aps_table):
     # print(db_type)
-    if ( db_type == 'lad'):
+    if ( db_type == 'sandbox'):
         aps_db = config.aps_batch
     if ( db_type == 'cnfg'):
         aps_db = config.aps_cnfg_batch
