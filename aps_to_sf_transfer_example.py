@@ -20,23 +20,22 @@ import argparse
 
 
 def createDDLFromAPSToSFTable (env,db_type, schemaID, aps_tableName, table_on_sf_to_load):
-    # print(schemaID)
-    # print(tableName)
+    
     if ( env == 'dev'):
-        sf_db = sf_dev_aps2_mig_ice_sdb
+        sf_db = sf_dev
 
 
     if ( env == 'uacc'):
-        sf_db = sf_uacc_aps2_mig_ice_sdb
+        sf_db = sf_uacc
 
 
     if ( env == 'prod'):
-        sf_db = sf_prod_aps2_mig_ice_sdb
+        sf_db = sf_prod
 
     if ( db_type == 'lad'):
-        aps_db = config.aps2_laad_2_batch_db
+        aps_db = config.aps_batch
     if ( db_type == 'cnfg'):
-        aps_db = config.aps2_laad_cnfg_batch_db
+        aps_db = config.aps2_cnfg_batch
     aps_conn, aps_cur = config.getApsCon(aps_db)
 
     createTempTable_qry = f"""SELECT 
@@ -102,23 +101,23 @@ def direct_table_transfer(env, data):
     aps_table = data["aps_table"]
     table_on_sf_to_load = data["table_on_sf_to_load"]
 
-    if ( db_type == 'lad'):
-        aps_db = config.aps2_laad_2_batch_db
-    if ( db_type == 'cnfg'):
-        aps_db = config.aps2_laad_cnfg_batch_db
-
-    aps_conn, aps_cur = config.getApsCon(aps_db)
     if ( env == 'dev'):
-            sf_db = config.sf_dev_aps2_mig_ice_sdb
+        sf_db = sf_dev
 
 
     if ( env == 'uacc'):
-            sf_db = config.sf_uacc_aps2_mig_ice_sdb
+        sf_db = sf_uacc
 
 
     if ( env == 'prod'):
-            sf_db = config.sf_dev_aps2_mig_ice_sdb# get details from SP
+        sf_db = sf_prod
 
+    if ( db_type == 'lad'):
+        aps_db = config.aps_batch
+    if ( db_type == 'cnfg'):
+        aps_db = config.aps2_cnfg_batch
+    aps_conn, aps_cur = config.getApsCon(aps_db)
+    
     sf_conn, sf_engine, sf_cur , = config.getSfCon_alt(sf_db)
 
     wrh_qry = f"""USE WAREHOUSE {sf_db["warehouse"]};"""
@@ -173,19 +172,19 @@ def parquet_file_creation_and_upload( data):
 
      # Determine APS database
     if db_type == 'lad':
-        aps_db = config.aps2_laad_2_batch_db
+        aps_db = config.aps_batch
     elif db_type == 'cnfg':
-        aps_db = config.aps2_laad_cnfg_batch_db
+        aps_db = config.aps_cnfg_batch
 
     aps_conn, aps_cur = config.getApsCon(aps_db)
 
     # Determine Snowflake connection
     if env == 'dev':
-        sf_db = config.sf_dev_aps2_mig_ice_sdb
+        sf_db = config.sf_dev
     elif env == 'uacc':
-        sf_db = config.sf_uacc_aps2_mig_ice_sdb
+        sf_db = config.sf_uacc
     elif env == 'prod':
-        sf_db = config.sf_prod_aps2_mig_ice_sdb
+        sf_db = config.sf_prod
 
     sf_conn, sf_engine, sf_cur = config.getSfCon_alt(sf_db)
       # Use Snowflake stage
@@ -284,22 +283,22 @@ def parquet_file_creation_and_upload( data):
 def main(env, db_type , partition_column , schemaID , aps_table):
     # print(db_type)
     if ( db_type == 'lad'):
-        aps_db = config.aps2_laad_2_batch_db
+        aps_db = config.aps_batch
     if ( db_type == 'cnfg'):
-        aps_db = config.aps2_laad_cnfg_batch_db
+        aps_db = config.aps_cnfg_batch
 
     # print(aps_db)
     aps_conn, aps_cur, aps_engine = config.getApsCon_withEngine(aps_db)
     if ( env == 'dev'):
-            sf_db = config.sf_dev_aps2_mig_ice_sdb
+            sf_db = config.sf_dev
 
 
     if ( env == 'uacc'):
-            sf_db = config.sf_uacc_aps2_mig_ice_sdb
+            sf_db = config.sf_uacc
 
 
     if ( env == 'prod'):
-            sf_db = config.sf_dev_aps2_mig_ice_sdb# get details from SP
+            sf_db = config.sf_dev# get details from SP
 
     sf_conn, sf_engine, sf_cur , = config.getSfCon_alt(sf_db)
 
@@ -393,14 +392,13 @@ def main(env, db_type , partition_column , schemaID , aps_table):
             print('Rowcount of table qualifies to directly transfer data to Snowflake')
             direct_table_transfer(env,db_type,create_table_ddl,partition_column,aps_table,table_on_sf_to_load)
                     
-# W15267.LAAD_MX_FACT_PHYS
-# W15267.LAAD_RX_FACT_VIEW
+
 ##### manual call from python file
 # env='dev'
 # db_type = 'cnfg'
 # partition_column = 'WEEK_ID'
-# schemaID='M12206'
-# aps_table = f'LAAD_MX_FACT_PHYS_RANK'
+# schemaID='test123'
+# aps_table = f'test_RANK'
 
 # main(env, db_type,partition_column,schemaID,aps_table)
 
@@ -414,21 +412,20 @@ if __name__ == "__main__":
     env = sys.argv[1] #eg:'dev'
     db_type = sys.argv[2] #eg: 'cnfg'
     partition_column = sys.argv[3]  #eg:'WEEK_ID' 
-    schemaID = sys.argv[4] #eg:'M12206' 
-    aps_table = sys.argv[5]  #eg: f'LAAD_MX_FACT_PHYS_RANK'
+    schemaID = sys.argv[4] #eg:'test123' 
+    aps_table = sys.argv[5]  #eg: f'test'
 
     # env = 'uacc'
     # db_type = 'cnfg'
     # partition_column = 'WEEK_ID' 
-    # schemaID = 'W15267' 
-    # aps_table =f'LAAD_MX_FACT_PHYS'
+    # schemaID = 'test123' 
+    # aps_table =f'test'
 
     main(env, db_type , partition_column , schemaID , aps_table)
       
-# W15267.LAAD_MX_FACT_PHYS
-# W15267.LAAD_RX_FACT_VIEW
+
 # code call from .sh File
 # Use bash terminal
-# cd /d/Git/new/com.rxcorp.lad.apssfmdt/python/aps/DataMovementAPSToSF
-# ./data_transfer_caller.sh uacc cnfg WEEK_ID W15267 LAAD_MX_FACT_PHYS
-# ./data_transfer_caller.sh uacc cnfg WEEK_ID W15267 LAAD_RX_FACT_VIEW}
+# cd /python/aps/DataMovementAPSToSF
+# ./data_transfer_caller.sh uacc cnfg WEEK_ID test123 test
+# ./data_transfer_caller.sh uacc cnfg WEEK_ID test123 test_vw}
